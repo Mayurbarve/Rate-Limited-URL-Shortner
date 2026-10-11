@@ -1,0 +1,29 @@
+services:
+  app:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/shortener
+      DATABASE_USER: shortener
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-shortener}
+      REDIS_HOST: redis
+      PREMIUM_API_KEY: ${PREMIUM_API_KEY:-}
+      SHORTENER_BASE_URL: ${SHORTENER_BASE_URL:-http://localhost:8080}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: shortener
+      POSTGRES_USER: shortener
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-shortener}
+    ports: ["5432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U shortener -d shortener"], interval: 5s, timeout: 3s, retries: 10 }
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck: { test: ["CMD", "redis-cli", "ping"], interval: 5s, timeout: 3s, retries: 10 }
+volumes:
+  postgres-data:

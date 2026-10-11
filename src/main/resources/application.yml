@@ -1,0 +1,24 @@
+spring:
+  application.name: rate-limited-url-shortener
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/shortener}
+    username: ${DATABASE_USER:shortener}
+    password: ${DATABASE_PASSWORD:shortener}
+  jpa:
+    hibernate.ddl-auto: update
+    open-in-view: false
+    properties.hibernate.jdbc.time_zone: UTC
+  data.redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+server:
+  port: ${PORT:8080}
+shortener:
+  base-url: ${SHORTENER_BASE_URL:http://localhost:8080}
+  code-generator: ${CODE_GENERATOR:base62-counter}
+  rate-limiter: ${RATE_LIMITER:token-bucket}
+  cache-ttl: 10m
+  premium-api-key: ${PREMIUM_API_KEY:}
+springdoc:
+  swagger-ui.path: /swagger-ui.html
+management.endpoints.web.exposure.include: health,info,prometheus
